@@ -14,7 +14,7 @@ NICE DCV Session Manager (https://docs.aws.amazon.com/dcv/latest/sm-admin/what-i
 The solution is deployed using AWS CDK (https://docs.aws.amazon.com/cdk/latest/guide/home.html)  with the Python (https://docs.aws.amazon.com/cdk/latest/guide/work-with-cdk-python.html) 3 language. This technology enables to create and provision AWS infrastructure deployments predictably and repeatedly  with a familiar programming language like Python.
 
 
-The code used for this solution can be downloaded from this repo (https://github.com/laportad/dcv-session-manager-infrastructure). Inside the repo:
+Inside the repo:
 
  * app.py contains the configuration variables used to deploy the environment. Before the deployment, you need to customize it with the required configurations. Be sure to modify <region> and <account> to match the values for your account. <key_name> is your Amazon EC2 key pair. <arn_secret> is the arn of the secret created in the previous step. The additional parameters can be modified depending your requirements.
  * dcv_session_manager_infrastructure/dcv_session_manager_infrastructure_stack.py contains the main functions to deploy all the required resources.
