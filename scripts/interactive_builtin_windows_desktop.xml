@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><ef:spooler xmlns:ef="http://www.enginframe.com/2000/EnginFrame" server="$EF_SPOOLER_DIR" ttl="-1">
+    <ef:apply-acl priority="allow" select="allow-to[vdi:all-users]">
+        <ef:service class="session-launcher windows-session-launcher" hidden="false" id="interactive_builtin_windows_desktop.published" xmlns:ef="http://www.enginframe.com/2000/EnginFrame">
+      <ef:name>Windows Desktop</ef:name>
+      <ef:info hidden="true" id="sm_service_js">
+                <script type="text/javascript"></script>
+            </ef:info>
+      <ef:info hidden="true" id="sm_service_css">
+                <style type="text/css"></style>
+            </ef:info>
+      <ef:metadata attribute="INTERACTIVE_CLASS">windows</ef:metadata>
+      <ef:metadata attribute="INTERACTIVE_CLASS_LABEL">Windows</ef:metadata>
+      <ef:metadata attribute="VDI_OS">windows</ef:metadata>
+      <ef:metadata attribute="VDI_REMOTE">dcv2sm</ef:metadata>
+      <ef:metadata attribute="VDI_CLUSTER">dcvsm_cluster1:dcvsm</ef:metadata>
+      <ef:metadata attribute="SM_SERVICE_NAME">Windows Desktop</ef:metadata>
+      <ef:metadata attribute="SM_SERVICE_VISIBILITY">true</ef:metadata>
+      <ef:metadata attribute="SM_SERVICE_EMBEDDABLE">false</ef:metadata>
+      <ef:metadata attribute="SM_SERVICE_ID">interactive_builtin_windows_desktop</ef:metadata>
+      <ef:metadata attribute="SM_SERVICE_TYPE">interactive</ef:metadata>
+      <ef:metadata attribute="SM_SERVICE_AUTHOR">NICE</ef:metadata>
+      <ef:metadata attribute="SM_SERVICE_LAST_MODIFIED_BY">NICE</ef:metadata>
+      <ef:metadata attribute="SM_SERVICE_CREATION_TIME">2014-10-28T14:57:57+01:00</ef:metadata>
+      <ef:metadata attribute="SM_SERVICE_LAST_MODIFIED_TIME">2014-10-28T14:57:57+01:00</ef:metadata>
+      <ef:metadata attribute="SM_EF_VERSION">2015.1.38221</ef:metadata>
+      <ef:metadata attribute="SM_SERVICE_USER_GROUPS">all-users</ef:metadata>
+            <ef:metadata attribute="SM_SERVICE_PUBLISHED_FOLDER">services</ef:metadata>
+            <ef:action id="submit" label="Launch Session" load-conf="$EF_DATA_ROOT/plugins/vdi/services/catalog/interactive_builtin_windows_desktop/conf/service.efconf" output-mode="normal" result="text/xml">
+        PATH="$EF_ROOT/plugins/vdi/bin:$PATH"
+        export PATH
+        "$SM_CATALOG_INTERACTIVE/$SM_SERVICE_ID/bin/action-script.sh"
+      </ef:action>
+    </ef:service>
+    </ef:apply-acl>
+</ef:spooler>

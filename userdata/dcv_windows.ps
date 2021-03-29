@@ -1,0 +1,76 @@
+# MIT No Attribution
+# Copyright 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this
+# software and associated documentation files (the "Software"), to deal in the Software
+# without restriction, including without limitation the rights to use, copy, modify,
+# merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+#Retrieve the AWS cli
+wget https://awscli.amazonaws.com/AWSCLIV2.msi  -outfile "AWSCLIV2.msi"
+
+#Install the AWS cli
+Start-Process msiexec.exe -ArgumentList "/i AWSCLIV2.msi /qn" -wait
+
+#Reload the environment variables
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User") 
+
+#Retrieve the EnginFrame hostname
+$ef_hostname = aws ssm get-parameter --name EnginFrameHost --output text --query Parameter.Value
+
+#Retrieve the DCV certificate
+$dcvsm_certificate = aws ssm get-parameter --name DCVSMCertificate --output text --query Parameter.Value
+
+#Retrieve the efadmin password
+$efadmin_password = aws secretsmanager get-secret-value --secret-id  {arn_secret_password} --query SecretString --output text | %{{ $_.Split('"')[3]; }}
+
+#Modify the Administrator password
+net user Administrator $efadmin_password
+
+#Configure the DCVSM configuration file
+((Get-Content -path "C:\Program Files\NICE\DCVSessionManagerAgent\conf\agent.conf" -Raw) -replace "broker_host = ''","broker_host = '$ef_hostname'") | Set-Content -Path "C:\Program Files\NICE\DCVSessionManagerAgent\conf\agent.conf"
+((Get-Content -path "C:\Program Files\NICE\DCVSessionManagerAgent\conf\agent.conf" -Raw) -replace "#ca_file = 'ca-cert.pem'","ca_file = 'C:\Program Files\NICE\DCVSessionManagerAgent\conf\broker_cert.pem'") | Set-Content -Path "C:\Program Files\NICE\DCVSessionManagerAgent\conf\agent.conf"
+
+#Save the DCVSM certificate
+echo $dcvsm_certificate | out-file -Encoding ascii 'C:\Program Files\NICE\DCVSessionManagerAgent\conf\broker_cert.pem'
+
+#Load the HKEY_USERS registry
+New-PSDrive -PSProvider Registry -Name HKU -Root HKEY_USERS
+
+#Configure the required DCV registry value
+New-ItemProperty -Path "HKU:/S-1-5-18/Software/GSettings/com/nicesoftware/dcv/security" -Name "ca-file" -Value ”C:\Program Files\NICE\DCVSessionManagerAgent\conf\broker_cert.pem”  -PropertyType "String"
+
+#Retrieve the node AWS hostname
+$metadata = Invoke-WebRequest http://169.254.169.254/latest/meta-data/hostname
+$hostname = echo $metadata.Content | %{{ $_.Split('.')[0]; }}
+
+#Configure the DCV we url path
+New-ItemProperty -Path "HKU:/S-1-5-18/Software/GSettings/com/nicesoftware/dcv/connectivity" -Name "web-url-path" -Value ”/$hostname”  -PropertyType "String"
+
+#Disable the DCV automatic session creation
+Set-ItemProperty -Path "HKU:/S-1-5-18/Software/GSettings/com/nicesoftware/dcv/session-management" -Name "create-session" -Value 0
+
+#Configure the DCV auth-token-verifier
+$auth='https://'+$ef_hostname+':8445/agent/validate-authentication-token'
+New-ItemProperty -Path "HKU:/S-1-5-18/Software/GSettings/com/nicesoftware/dcv/security" -Name "auth-token-verifier" -Value ”$auth”  -PropertyType "String"
+
+#Start the required services
+Set-Service -Name DcvSessionManagerAgentService -StartupType Automatic
+Start-Service -Name DcvSessionManagerAgentService
+Stop-Service -Name 'DCV Server'
+Start-Service -Name 'DCV Server'
+
+#Retrieve the InstanceID
+$MyInstID = Invoke-WebRequest  http://169.254.169.254/latest/meta-data/instance-id
+
+#Retrieve the logical ID of the resource
+$ASGLOGICALID = aws ec2 describe-instances --instance-ids $MyInstID.Content --query "Reservations[].Instances[].Tags[?Key=='aws:cloudformation:logical-id'].Value" --output text
+
+#Send the signal to the Cloudformation Stack
+cfn-signal -e 0 --stack {StackName} --resource $ASGLOGICALID --region {RegionName}

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><ef:spooler xmlns:ef="http://www.enginframe.com/2000/EnginFrame" server="$EF_SPOOLER_DIR" ttl="-1">
+    <ef:apply-acl priority="allow" select="allow-to[vdi:all-users]">
+        <ef:service class="session-launcher linux-session-launcher" hidden="false" id="interactive_builtin_linux_desktop.published">
+        <ef:info hidden="true" id="sm_service_js">
+            <script type="text/javascript"></script>
+        </ef:info>
+        <ef:info hidden="true" id="sm_service_css">
+            <style media="screen" type="text/css"></style>
+        </ef:info>
+        <ef:name>Linux Desktop</ef:name>
+        <ef:metadata attribute="SM_SERVICE_NAME">Linux Desktop</ef:metadata>
+        <ef:metadata attribute="SM_SERVICE_VISIBILITY">true</ef:metadata>
+        <ef:metadata attribute="SM_SERVICE_EMBEDDABLE">false</ef:metadata>
+        <ef:metadata attribute="SM_SERVICE_ID">interactive_builtin_linux_desktop</ef:metadata>
+        <ef:metadata attribute="SM_SERVICE_TYPE">interactive</ef:metadata>
+        <ef:metadata attribute="SM_SERVICE_AUTHOR">NICE</ef:metadata>
+        <ef:metadata attribute="SM_SERVICE_LAST_MODIFIED_BY">efadmin</ef:metadata>
+        <ef:metadata attribute="SM_SERVICE_CREATION_TIME">2014-10-28T14:57:57+01:00</ef:metadata>
+        <ef:metadata attribute="SM_SERVICE_LAST_MODIFIED_TIME">2021-03-18T16:16:53Z</ef:metadata>
+        <ef:metadata attribute="INTERACTIVE_CLASS">linux</ef:metadata>
+        <ef:metadata attribute="VDI_OS">linux</ef:metadata>
+        <ef:metadata attribute="VDI_REMOTE">dcv2sm</ef:metadata>
+        <ef:metadata attribute="VDI_CLUSTER">dcvsm_cluster1:dcvsm</ef:metadata>
+        <ef:metadata attribute="VDI_DESKTOP_MANAGER">userdefault</ef:metadata>
+        <ef:metadata attribute="SM_EF_VERSION">2020.0-r197</ef:metadata>
+        <ef:metadata attribute="SM_SERVICE_USER_GROUPS">all-users</ef:metadata>
+            <ef:metadata attribute="SM_SERVICE_PUBLISHED_FOLDER">services</ef:metadata>
+            <ef:action id="submit" label="Launch Session" load-conf="$EF_DATA_ROOT/plugins/vdi/services/catalog/interactive_builtin_linux_desktop/conf/service.efconf" output-mode="normal" result="text/xml">
+        PATH="$EF_ROOT/plugins/vdi/bin:$PATH"
+        export PATH
+        "$SM_CATALOG_INTERACTIVE/$SM_SERVICE_ID/bin/action-script.sh"
+      </ef:action>
+    </ef:service>
+    </ef:apply-acl>
+</ef:spooler>
