@@ -24,6 +24,7 @@ from aws_cdk import (
     custom_resources as cr,
     aws_logs as logs,
     aws_certificatemanager as acm,
+    aws_s3_assets as assets,
     core,
 )
 from aws_cdk.core import CustomResource
@@ -35,6 +36,16 @@ class DcvSessionManagerInfrastructureStack(core.Stack):
 
     def __init__(self, scope: core.Construct, construct_id: str, config: list, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
+
+        # Copy the required files to S3
+        closing_hook = assets.Asset(
+            self, "ClosingHook", path='scripts/alb.session.closing.hook.sh')
+        starting_hook = assets.Asset(
+            self, "StartingHook", path='scripts/alb.session.starting.hook.sh')
+        interactive_builtin_linux_desktop = assets.Asset(
+            self, "LinuxDesktop", path='scripts/interactive_builtin_linux_desktop.xml')
+        interactive_builtin_windows_desktop = assets.Asset(
+            self, "WindowsDesktop", path='scripts/interactive_builtin_windows_desktop.xml')
 
         # VPC creation
         vpc = ec2.Vpc(self, "VPC",
@@ -58,13 +69,13 @@ class DcvSessionManagerInfrastructureStack(core.Stack):
 
         # ROLES
         role_ef = self.create_ef_role(
-            ef_nodename_parameter, dcvsm_certificate, config)
+            ef_nodename_parameter, dcvsm_certificate, config, closing_hook, starting_hook, interactive_builtin_linux_desktop, interactive_builtin_windows_desktop)
         role_dcv = self.create_dcv_role(
             ef_nodename_parameter, dcvsm_certificate, config)
 
         # create EF and DCV instances
         asg_enginframe = self.create_enginframe(
-            config, lb_enginframe, vpc, role_ef, ef_security_group)
+            config, lb_enginframe, vpc, role_ef, ef_security_group, closing_hook, starting_hook, interactive_builtin_linux_desktop, interactive_builtin_windows_desktop)
         asg_dcv_linux = self.create_dcv_linux(
             config, vpc, role_dcv, dcv_security_group)
         asg_dcv_windows = self.create_dcv_windows(
@@ -167,7 +178,7 @@ class DcvSessionManagerInfrastructureStack(core.Stack):
         return asg
 
     # Function used to define the EnginFrame instance
-    def create_enginframe(self, config, lb_enginframe, vpc, role_ef, ef_security_group):
+    def create_enginframe(self, config, lb_enginframe, vpc, role_ef, ef_security_group, closing_hook, starting_hook, interactive_builtin_linux_desktop, interactive_builtin_windows_desktop):
         # Userdata of the instances
         data_enginframe = open("userdata/enginframe.sh", "rb").read()
         enginframe_userdata = ec2.UserData.for_linux()
@@ -175,7 +186,11 @@ class DcvSessionManagerInfrastructureStack(core.Stack):
         data_enginframe_format = str(data_enginframe, 'utf-8').format(arn_secret_password=config['arn_efadmin_password'],
                                                                       StackName=core.Aws.STACK_NAME,
                                                                       RegionName=core.Aws.REGION,
-                                                                      ALB_DNS_NAME=lb_enginframe.load_balancer_dns_name)
+                                                                      ALB_DNS_NAME=lb_enginframe.load_balancer_dns_name,
+                                                                      closing_hook=closing_hook.s3_object_url,
+                                                                      starting_hook=starting_hook.s3_object_url,
+                                                                      interactive_builtin_linux_desktop=interactive_builtin_linux_desktop.s3_object_url,
+                                                                      interactive_builtin_windows_desktop=interactive_builtin_windows_desktop.s3_object_url)
         # Add the userdata to the instances
         enginframe_userdata.add_commands(data_enginframe_format)
         # Search for the latest AMIs for the instances
@@ -236,13 +251,13 @@ class DcvSessionManagerInfrastructureStack(core.Stack):
         return asg_dcv_windows
 
     # Function used to create the EnginFrame required role
-    def create_ef_role(self, ef_nodename_parameter, dcvsm_certificate, config):
+    def create_ef_role(self, ef_nodename_parameter, dcvsm_certificate, config, closing_hook, starting_hook, interactive_builtin_linux_desktop, interactive_builtin_windows_desktop):
         # Instances Role
         role_ef = iam.Role(
             self, "EF_ROLE", assumed_by=iam.ServicePrincipal("ec2.amazonaws.com"))
         # Allow console access with SSM
         role_ef.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name(
-            "service-role/AmazonEC2RoleforSSM"))
+            "AmazonSSMManagedInstanceCore"))
         # Allow to the EF node to modify the SSM parameters
         role_ef.add_to_policy(
             iam.PolicyStatement(
@@ -253,6 +268,21 @@ class DcvSessionManagerInfrastructureStack(core.Stack):
                 ],
                 resources=[ef_nodename_parameter.parameter_arn,
                            dcvsm_certificate.parameter_arn],
+            )
+        )
+        # Allow to the EF node to download the required files from S3
+        role_ef.add_to_policy(
+            iam.PolicyStatement(
+                effect=iam.Effect.ALLOW,
+                actions=[
+                    "s3:GetObject"
+                ],
+                resources=["arn:aws:s3:::" + closing_hook.s3_bucket_name + "/" + closing_hook.s3_object_key,
+                           "arn:aws:s3:::" + starting_hook.s3_bucket_name +
+                           "/" + starting_hook.s3_object_key,
+                           "arn:aws:s3:::" + interactive_builtin_linux_desktop.s3_bucket_name +
+                           "/" + interactive_builtin_linux_desktop.s3_object_key,
+                           "arn:aws:s3:::" + interactive_builtin_windows_desktop.s3_bucket_name + "/" + interactive_builtin_windows_desktop.s3_object_key],
             )
         )
         # Allow to retrieve the efadmin password
@@ -296,7 +326,7 @@ class DcvSessionManagerInfrastructureStack(core.Stack):
             self, "DCV_ROLE", assumed_by=iam.ServicePrincipal("ec2.amazonaws.com"))
         # Allow console access with SSM
         role_dcv.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name(
-            "service-role/AmazonEC2RoleforSSM"))
+            "AmazonSSMManagedInstanceCore"))
         # Allow the DCV nodes to access the parameters
         role_dcv.add_to_policy(
             iam.PolicyStatement(

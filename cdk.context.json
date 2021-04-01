@@ -1,9 +1,3 @@
 {
-  "availability-zones:account=667854731934:region=eu-central-1": [
-    "eu-central-1a",
-    "eu-central-1b",
-    "eu-central-1c"
-  ],
-  "ami:account=667854731934:filters.image-type.0=machine:filters.name.0=DCV-AmazonLinux2*NVIDIA*:filters.state.0=available:owners.0=amazon:region=eu-central-1": "ami-0aa4f904d736d1114",
-  "ami:account=667854731934:filters.image-type.0=machine:filters.name.0=DCV-Windows*NVIDIA*:filters.state.0=available:owners.0=amazon:region=eu-central-1": "ami-034ec27d28eee0697"
+
 }

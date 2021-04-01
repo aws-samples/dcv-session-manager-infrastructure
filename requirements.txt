@@ -9,3 +9,4 @@ aws_cdk.aws_lambda
 aws_cdk.custom_resources
 aws_cdk.aws_logs
 aws_cdk.aws_certificatemanager
+aws_cdk.aws_s3_assets
