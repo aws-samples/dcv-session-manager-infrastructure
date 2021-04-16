@@ -410,7 +410,7 @@ class DcvSessionManagerInfrastructureStack(core.Stack):
         )
 
         # Lambda to create the ALB https certificate
-        project_session = _lambda.Function(self, "lambda_create_cert",
+        lambda_cert = _lambda.Function(self, "lambda_create_cert",
                                            runtime=_lambda.Runtime.PYTHON_3_7,
                                            handler="cert.lambda_handler",
                                            code=_lambda.Code.asset("./lambda"),
@@ -419,7 +419,7 @@ class DcvSessionManagerInfrastructureStack(core.Stack):
 
         lambda_cs = CustomResource(
             self, "Resource1",
-            service_token=project_session.function_arn,
+            service_token=lambda_cert.function_arn,
             properties={
                 "LoadBalancerDNSName": lb_enginframe.load_balancer_dns_name
             }
