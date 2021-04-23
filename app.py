@@ -36,6 +36,6 @@ CONFIG = {
 
 app = core.App()
 # Region and Account are required to retrieve the image to use for the instances
-DcvSessionManagerInfrastructureStack(app, "dcv-session-manager-infrastructure4", config=CONFIG, env={"region": CONFIG['region'], "account": CONFIG['account']})
+DcvSessionManagerInfrastructureStack(app, "dcv-session-manager-infrastructure", config=CONFIG, env={"region": CONFIG['region'], "account": CONFIG['account']})
 
 app.synth()
