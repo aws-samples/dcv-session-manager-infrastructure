@@ -19,7 +19,7 @@ setuptools.setup(
     packages=setuptools.find_packages(where="dcv_session_manager_infrastructure"),
 
     install_requires=[
-        "aws-cdk.core==1.92.0",
+        "aws-cdk.core",
     ],
 
     python_requires=">=3.6",
