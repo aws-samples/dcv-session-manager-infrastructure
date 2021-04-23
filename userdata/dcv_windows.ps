@@ -47,7 +47,7 @@ New-PSDrive -PSProvider Registry -Name HKU -Root HKEY_USERS
 New-ItemProperty -Path "HKU:/S-1-5-18/Software/GSettings/com/nicesoftware/dcv/security" -Name "ca-file" -Value ”C:\Program Files\NICE\DCVSessionManagerAgent\conf\broker_cert.pem”  -PropertyType "String"
 
 #Retrieve the node AWS hostname
-$metadata = Invoke-WebRequest http://169.254.169.254/latest/meta-data/hostname
+$metadata = Invoke-WebRequest http://169.254.169.254/latest/meta-data/hostname -UseBasicParsing
 $hostname = echo $metadata.Content | %{{ $_.Split('.')[0]; }}
 
 #Configure the DCV we url path
@@ -67,7 +67,7 @@ Stop-Service -Name 'DCV Server'
 Start-Service -Name 'DCV Server'
 
 #Retrieve the InstanceID
-$MyInstID = Invoke-WebRequest  http://169.254.169.254/latest/meta-data/instance-id
+$MyInstID = Invoke-WebRequest  http://169.254.169.254/latest/meta-data/instance-id -UseBasicParsing
 
 #Retrieve the logical ID of the resource
 $ASGLOGICALID = aws ec2 describe-instances --instance-ids $MyInstID.Content --query "Reservations[].Instances[].Tags[?Key=='aws:cloudformation:logical-id'].Value" --output text
