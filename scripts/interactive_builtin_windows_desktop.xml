@@ -18,6 +18,7 @@
       <ef:metadata attribute="SM_SERVICE_EMBEDDABLE">false</ef:metadata>
       <ef:metadata attribute="SM_SERVICE_ID">interactive_builtin_windows_desktop</ef:metadata>
       <ef:metadata attribute="SM_SERVICE_TYPE">interactive</ef:metadata>
+      <ef:metadata attribute="VDI_SESSION_MODE">console</ef:metadata>
       <ef:metadata attribute="SM_SERVICE_AUTHOR">NICE</ef:metadata>
       <ef:metadata attribute="SM_SERVICE_LAST_MODIFIED_BY">NICE</ef:metadata>
       <ef:metadata attribute="SM_SERVICE_CREATION_TIME">2014-10-28T14:57:57+01:00</ef:metadata>
