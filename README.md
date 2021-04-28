@@ -1,4 +1,6 @@
 
+Blog post link: https://aws.amazon.com/blogs/hpc/a-vdi-solution-with-enginframe-and-nice-dcv-session-manager-built-with-aws-cdk/
+
 # A VDI solution with EnginFrame and DCV Session Manager built with AWS CDK
 
 The architecture proposed in this blog post is designed to simplify the process of setting up and running technical and scientific applications that take advantage of the power, scale, and flexibility of the AWS Cloud. You can set up a fully functional Linux and Windows VDI infrastructure and then access it through a simple web-based user interface.
