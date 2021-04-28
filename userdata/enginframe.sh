@@ -90,7 +90,7 @@ EOF
 #Install EnginFrame
 java -jar "$ef_jar" --text --batch
 
-echo "#EF_GRID_MANAGERS=\"lsf,neutro\"" > /opt/nice/enginframe/conf/plugins/grid/grid.conf 
+echo "EF_GRID_MANAGERS=\"dcvsm\"" > /opt/nice/enginframe/conf/plugins/grid/grid.conf 
 
 #Retrieve the Session manager broker download URL
 dcvsmb_download_url=$(curl https://download.nice-dcv.com/ 2>/dev/null | grep SessionManagerBrokers | grep el7 | sed -e 's/<[^>]*>//g' | awk -F'"' '{{ print $2 }}')
