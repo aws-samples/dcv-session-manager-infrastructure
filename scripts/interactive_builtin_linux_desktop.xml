@@ -18,6 +18,7 @@
         <ef:metadata attribute="SM_SERVICE_CREATION_TIME">2014-10-28T14:57:57+01:00</ef:metadata>
         <ef:metadata attribute="SM_SERVICE_LAST_MODIFIED_TIME">2021-03-18T16:16:53Z</ef:metadata>
         <ef:metadata attribute="INTERACTIVE_CLASS">linux</ef:metadata>
+        <ef:metadata attribute="VDI_SESSION_MODE">virtual</ef:metadata>
         <ef:metadata attribute="VDI_OS">linux</ef:metadata>
         <ef:metadata attribute="VDI_REMOTE">dcv2sm</ef:metadata>
         <ef:metadata attribute="VDI_CLUSTER">dcvsm_cluster1:dcvsm</ef:metadata>
