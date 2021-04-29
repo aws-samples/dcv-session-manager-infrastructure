@@ -35,7 +35,7 @@ printf "$efadmin_password" | passwd efadmin --stdin
 yum -y install java-1.8.0-openjdk.x86_64 curl wget python2-pip
 
 #EnginFrame Download URL
-ef_download_url="https://dn3uclhgxk1jt.cloudfront.net/enginframe/packages/enginframe-latest.jar"
+ef_download_url="https://dn3uclhgxk1jt.cloudfront.net/enginframe/packages/2020.0/enginframe-2020.0-r280.jar"
 
 wget "$ef_download_url"
 
