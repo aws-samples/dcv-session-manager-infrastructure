@@ -34,8 +34,8 @@ printf "$efadmin_password" | passwd efadmin --stdin
 #Install some required packages
 yum -y install java-1.8.0-openjdk.x86_64 curl wget python2-pip
 
-#Retrieve the EnginFrame download URL
-ef_download_url=$(curl https://download.enginframe.com 2>/dev/null | grep enginframe | grep jar | awk -F'"' '{{ print $2 }}')
+#EnginFrame Download URL
+ef_download_url="https://dn3uclhgxk1jt.cloudfront.net/enginframe/packages/enginframe-latest.jar"
 
 wget "$ef_download_url"
 
@@ -92,8 +92,8 @@ java -jar "$ef_jar" --text --batch
 
 echo "EF_GRID_MANAGERS=\"dcvsm\"" > /opt/nice/enginframe/conf/plugins/grid/grid.conf 
 
-#Retrieve the Session manager broker download URL
-dcvsmb_download_url=$(curl https://download.nice-dcv.com/ 2>/dev/null | grep SessionManagerBrokers | grep el7 | sed -e 's/<[^>]*>//g' | awk -F'"' '{{ print $2 }}')
+#Session manager broker download URL
+dcvsmb_download_url="https://d1uj6qtbmh3dt5.cloudfront.net/nice-dcv-session-manager-broker-el7.noarch.rpm"
 
 wget "$dcvsmb_download_url"
 
