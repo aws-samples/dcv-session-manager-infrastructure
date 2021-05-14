@@ -121,6 +121,8 @@ dcvsm_certificate=$(cat /var/lib/dcvsmbroker/security/dcvsmbroker_ca.pem)
 #Add the certificate to Parameter store
 aws ssm put-parameter --name "DCVSMCertificate" --value "$dcvsm_certificate" --allowed-pattern '' --overwrite
 
+sleep 60
+
 #Register EnginFrame as client to the DCVSM broker
 dcv-session-manager-broker register-api-client --client-name EnginFrame > /tmp/ef_client_reg
 
