@@ -15,6 +15,13 @@ NICE DCV Session Manager (https://docs.aws.amazon.com/dcv/latest/sm-admin/what-i
 
 The solution is deployed using AWS CDK (https://docs.aws.amazon.com/cdk/latest/guide/home.html)  with the Python (https://docs.aws.amazon.com/cdk/latest/guide/work-with-cdk-python.html) 3 language. This technology enables to create and provision AWS infrastructure deployments predictably and repeatedly  with a familiar programming language like Python.
 
+Creation of the default account password
+
+The EnginFrame default administrator account, named efadmin, requires a password. To improve the security of the solution, the password must be created by the user and saved in AWS Secrets Manager. The AWS Secrets Manager tutorial (https://docs.aws.amazon.com/secretsmanager/latest/userguide/tutorials_basic.html) explains how to create your secret.The password must have letters, numbers, and one special character. The ARN of the created secret will be required in the next section.
+This example command can be used to create the password from the AWS cli:
+```
+$ aws secretsmanager create-secret --name efadminPassword --description "EfadminPassword" --secret-string '{"efadminPassword":"test123456!"}' 
+```
 
 Inside the repo:
 
