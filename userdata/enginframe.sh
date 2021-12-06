@@ -99,8 +99,14 @@ wget "$dcvsmb_download_url"
 
 dcvsmb_rpm=$(ls *.rpm)
 
+#Install Java 11 requirement
+amazon-linux-extras install java-openjdk11 -y
+
 #Install DCVSM broker
 yum install -y "$dcvsmb_rpm"
+
+# fix java version on startup script
+sed -i "s#^java#/etc/alternatives/jre-11/bin/java#" /usr/share/dcv-session-manager-broker/bin/dcv-session-manager-broker.sh
 
 # switch broker to 8446 since 8443 is used by EnginFrame
 sed -i 's/client-to-broker-connector-https-port = .*$/client-to-broker-connector-https-port = 8446/' \
