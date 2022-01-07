@@ -106,8 +106,8 @@ amazon-linux-extras install java-openjdk11 -y
 yum install -y "$dcvsmb_rpm"
 
 # fix java version on startup script and cli
-sed -i "s#^java#/etc/alternatives/jre-11/bin/java#" /usr/share/dcv-session-manager-broker/bin/dcv-session-manager-broker.sh
-sed -i "s# java # /etc/alternatives/jre-11/bin/java #g" /usr/bin/dcv-session-manager-broker
+sed -i "s#^java#/etc/alternatives/jre_11/bin/java#" /usr/share/dcv-session-manager-broker/bin/dcv-session-manager-broker.sh
+sed -i "s# java # /etc/alternatives/jre_11/bin/java #g" /usr/bin/dcv-session-manager-broker
 
 # switch broker to 8446 since 8443 is used by EnginFrame
 sed -i 's/client-to-broker-connector-https-port = .*$/client-to-broker-connector-https-port = 8446/' \
