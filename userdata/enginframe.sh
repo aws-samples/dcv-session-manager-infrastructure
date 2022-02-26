@@ -33,7 +33,6 @@ printf "$efadmin_password" | passwd efadmin --stdin
 
 #Install some required packages
 yum -y install java-1.8.0-openjdk.x86_64 curl wget python2-pip
-#yum -y install  curl wget python2-pip
 
 #EnginFrame Download URL
 ef_download_url="https://dn3uclhgxk1jt.cloudfront.net/enginframe/packages/enginframe-latest.jar"
