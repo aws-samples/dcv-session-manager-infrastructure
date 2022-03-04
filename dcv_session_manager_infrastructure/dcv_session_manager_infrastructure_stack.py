@@ -197,7 +197,8 @@ class DcvSessionManagerInfrastructureStack(core.Stack):
         linux_ami_enginframe = ec2.AmazonLinuxImage(generation=ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
                                                     edition=ec2.AmazonLinuxEdition.STANDARD,
                                                     virtualization=ec2.AmazonLinuxVirt.HVM,
-                                                    storage=ec2.AmazonLinuxStorage.GENERAL_PURPOSE
+                                                    storage=ec2.AmazonLinuxStorage.GENERAL_PURPOSE,
+                                                    cpu_type=ec2.AmazonLinuxCpuType.X86_64
                                                     )
         # EnginFrame instance ASG
         asg_enginframe = self.create_asg("Enginframe", vpc, config['ec2_type_enginframe'], linux_ami_enginframe, enginframe_userdata,
@@ -219,7 +220,7 @@ class DcvSessionManagerInfrastructureStack(core.Stack):
         dcv_linux_userdata.add_commands(data_dcv_linux_format)
         # Search for the latest AMIs for the instances
         linux_ami_dcv_linux = ec2.MachineImage.lookup(
-            name="DCV-AmazonLinux2*NVIDIA*",
+            name="DCV-AmazonLinux2-x86_64-*-NVIDIA-*",
             owners=["amazon"]
         )
         # Linux DCV instances ASG
