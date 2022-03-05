@@ -14,7 +14,10 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from aws_cdk import core
+from aws_cdk import (
+    App
+)
+from constructs import Construct
 
 from dcv_session_manager_infrastructure.dcv_session_manager_infrastructure_stack import DcvSessionManagerInfrastructureStack
 
@@ -34,7 +37,7 @@ CONFIG = {
    "ebs_dcv_windows_size": 50 #EBS size for DCV windows
 }
 
-app = core.App()
+app = App()
 # Region and Account are required to retrieve the image to use for the instances
 DcvSessionManagerInfrastructureStack(app, "dcv-session-manager-infrastructure", config=CONFIG, env={"region": CONFIG['region'], "account": CONFIG['account']})
 

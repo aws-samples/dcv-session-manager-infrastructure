@@ -1,13 +1,2 @@
--e .
-aws-cdk.core
-aws_cdk.aws_ec2
-aws_cdk.aws_autoscaling
-aws_cdk.aws_elasticloadbalancingv2
-aws_cdk.aws_iam
-aws_cdk.aws_efs
-aws_cdk.aws_ssm
-aws_cdk.aws_lambda
-aws_cdk.custom_resources
-aws_cdk.aws_logs
-aws_cdk.aws_certificatemanager
-aws_cdk.aws_s3_assets
+aws-cdk-lib>=2.0.0
+constructs>=10.0.0
