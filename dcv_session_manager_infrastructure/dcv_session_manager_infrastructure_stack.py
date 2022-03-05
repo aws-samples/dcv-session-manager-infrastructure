@@ -15,6 +15,11 @@
 import base64
 
 from aws_cdk import (
+    Aws,
+    CfnOutput,
+    CustomResource,
+    Duration,
+    Stack,
     aws_autoscaling as autoscaling,
     aws_ec2 as ec2,
     aws_elasticloadbalancingv2 as elbv2,
@@ -24,17 +29,16 @@ from aws_cdk import (
     custom_resources as cr,
     aws_logs as logs,
     aws_certificatemanager as acm,
-    aws_s3_assets as assets,
-    core,
+    aws_s3_assets as assets
 )
-from aws_cdk.core import CustomResource
+from constructs import Construct
 
 # Class used to build the infrastructure
 
 
-class DcvSessionManagerInfrastructureStack(core.Stack):
+class DcvSessionManagerInfrastructureStack(Stack):
 
-    def __init__(self, scope: core.Construct, construct_id: str, config: list, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, config: list, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         # Copy the required files to S3
@@ -102,8 +106,8 @@ class DcvSessionManagerInfrastructureStack(core.Stack):
         asg_dcv_windows.node.add_dependency(asg_enginframe)
 
         # Return the ALB url
-        core.CfnOutput(self, "EnginFramePortalURL",
-                       value="https://"+lb_enginframe.load_balancer_dns_name)
+        CfnOutput(self, "EnginFramePortalURL",
+                  value="https://"+lb_enginframe.load_balancer_dns_name)
 
     # Function to create the ALB
 
@@ -164,7 +168,7 @@ class DcvSessionManagerInfrastructureStack(core.Stack):
             max_capacity=capacity,
             security_group=security_group,
             signals=autoscaling.Signals.wait_for_count(
-                capacity, timeout=core.Duration.minutes(30)),
+                capacity, timeout=Duration.minutes(30)),
             block_devices=[
                 autoscaling.BlockDevice(
                     device_name=device_name,
@@ -184,8 +188,8 @@ class DcvSessionManagerInfrastructureStack(core.Stack):
         enginframe_userdata = ec2.UserData.for_linux()
         # Change some placeholders inside the userdata of the instances
         data_enginframe_format = str(data_enginframe, 'utf-8').format(arn_secret_password=config['arn_efadmin_password'],
-                                                                      StackName=core.Aws.STACK_NAME,
-                                                                      RegionName=core.Aws.REGION,
+                                                                      StackName=Aws.STACK_NAME,
+                                                                      RegionName=Aws.REGION,
                                                                       ALB_DNS_NAME=lb_enginframe.load_balancer_dns_name,
                                                                       closing_hook=closing_hook.s3_object_url,
                                                                       starting_hook=starting_hook.s3_object_url,
@@ -197,7 +201,8 @@ class DcvSessionManagerInfrastructureStack(core.Stack):
         linux_ami_enginframe = ec2.AmazonLinuxImage(generation=ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
                                                     edition=ec2.AmazonLinuxEdition.STANDARD,
                                                     virtualization=ec2.AmazonLinuxVirt.HVM,
-                                                    storage=ec2.AmazonLinuxStorage.GENERAL_PURPOSE
+                                                    storage=ec2.AmazonLinuxStorage.GENERAL_PURPOSE,
+                                                    cpu_type=ec2.AmazonLinuxCpuType.X86_64
                                                     )
         # EnginFrame instance ASG
         asg_enginframe = self.create_asg("Enginframe", vpc, config['ec2_type_enginframe'], linux_ami_enginframe, enginframe_userdata,
@@ -213,13 +218,13 @@ class DcvSessionManagerInfrastructureStack(core.Stack):
         dcv_linux_userdata = ec2.UserData.for_linux()
         # Change some placeholders inside the userdata of the instances
         data_dcv_linux_format = str(data_dcv_linux, 'utf-8').format(arn_secret_password=config['arn_efadmin_password'],
-                                                                    StackName=core.Aws.STACK_NAME,
-                                                                    RegionName=core.Aws.REGION)
+                                                                    StackName=Aws.STACK_NAME,
+                                                                    RegionName=Aws.REGION)
         # Add the userdata to the instances
         dcv_linux_userdata.add_commands(data_dcv_linux_format)
         # Search for the latest AMIs for the instances
         linux_ami_dcv_linux = ec2.MachineImage.lookup(
-            name="DCV-AmazonLinux2*NVIDIA*",
+            name="DCV-AmazonLinux2-x86_64-*-NVIDIA-*",
             owners=["amazon"]
         )
         # Linux DCV instances ASG
@@ -235,8 +240,8 @@ class DcvSessionManagerInfrastructureStack(core.Stack):
         dcv_windows_userdata = ec2.UserData.for_windows()
         # Change some placeholders inside the userdata of the instances
         data_dcv_windows_format = str(data_dcv_windows, 'utf-8').format(arn_secret_password=config['arn_efadmin_password'],
-                                                                        StackName=core.Aws.STACK_NAME,
-                                                                        RegionName=core.Aws.REGION)
+                                                                        StackName=Aws.STACK_NAME,
+                                                                        RegionName=Aws.REGION)
         # Add the userdata to the instances
         dcv_windows_userdata.add_commands(data_dcv_windows_format)
         # Search for the latest AMIs for the instances
@@ -411,11 +416,12 @@ class DcvSessionManagerInfrastructureStack(core.Stack):
 
         # Lambda to create the ALB https certificate
         lambda_cert = _lambda.Function(self, "lambda_create_cert",
-                                           runtime=_lambda.Runtime.PYTHON_3_7,
-                                           handler="cert.lambda_handler",
-                                           code=_lambda.Code.asset("./lambda"),
-                                           timeout=core.Duration.seconds(600),
-                                           role=lambda_role)
+                                       runtime=_lambda.Runtime.PYTHON_3_7,
+                                       handler="cert.lambda_handler",
+                                       code=_lambda.Code.from_asset(
+                                           "./lambda"),
+                                       timeout=Duration.seconds(600),
+                                       role=lambda_role)
 
         lambda_cs = CustomResource(
             self, "Resource1",

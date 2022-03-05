@@ -14,7 +14,10 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from aws_cdk import core
+from aws_cdk import (
+    App
+)
+from constructs import Construct
 
 from dcv_session_manager_infrastructure.dcv_session_manager_infrastructure_stack import DcvSessionManagerInfrastructureStack
 
@@ -22,9 +25,9 @@ from dcv_session_manager_infrastructure.dcv_session_manager_infrastructure_stack
 CONFIG = {
    "region": "<region>", #AWS Region
    "account": "<account>", #AWS account number
-   "ec2_type_enginframe": "t2.2xlarge", #EnginFrame instance type  
-   "ec2_type_dcv_linux": "g4dn.xlarge", #DCV Linux instance type  
-   "ec2_type_dcv_windows": "g4dn.xlarge", #DCV Windows instance type
+   "ec2_type_enginframe": "t2.2xlarge", #EnginFrame instance type
+   "ec2_type_dcv_linux": "g4dn.xlarge", #DCV Linux instance type (x86 instances only)
+   "ec2_type_dcv_windows": "g4dn.xlarge", #DCV Windows instance type (x86 instances only)
    "linux_dcv_number": 1, #Number of DCV Linux nodes
    "windows_dcv_number": 1, #Number of DCV Windows nodes
    "arn_efadmin_password": "<arn_secret>", # ARN of the secret that contains the efadmin password
@@ -34,7 +37,7 @@ CONFIG = {
    "ebs_dcv_windows_size": 50 #EBS size for DCV windows
 }
 
-app = core.App()
+app = App()
 # Region and Account are required to retrieve the image to use for the instances
 DcvSessionManagerInfrastructureStack(app, "dcv-session-manager-infrastructure", config=CONFIG, env={"region": CONFIG['region'], "account": CONFIG['account']})
 
